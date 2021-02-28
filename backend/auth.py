@@ -71,7 +71,6 @@ def get_oauth_token():
                 }
         resp = requests.post('https://www.recurse.com/oauth/token', data=data)
         data = resp.json()
-        print(data)
         session['rc_token'] = {
             'access_token': data['access_token'],
             'refresh_token': data['refresh_token'],
