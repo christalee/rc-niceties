@@ -4,7 +4,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_oauthlib.client import OAuth
 
-MOCK_OUT_RC_API = False
+MOCK_OUT_RC_API = True
 
 # Flask won't route URLs in the static_url_path, so we set it to something
 # arbitrary and unlikely to be ever used (hence the included random GUID).

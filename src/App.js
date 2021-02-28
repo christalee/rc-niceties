@@ -146,12 +146,12 @@ var People = React.createClass({
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                 );
             }.bind(this))
- 
+
             staffHeader = (
                 <h3>Staff</h3>
-                
+
             );
-        //}  
+        //}
         return (
             <div className="people">
              <Modal show={this.state.justSaved}>
@@ -182,7 +182,7 @@ var People = React.createClass({
                     );
                 }.bind(this))}
                 {maybeHR}
-                { staffHeader }  
+                { staffHeader }
                 { staffRows }
             </Grid>
                 </div>
@@ -613,7 +613,7 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                //console.error(this.props.people, status, err.toString());
+                console.error(this.props.people, status, err.toString());
             }.bind(this)
         });
     },
@@ -626,7 +626,7 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                //console.error(this.props.fromMe, status, err.toString());
+                console.error(this.props.fromMe, status, err.toString());
             }.bind(this)
         });
     },
@@ -639,7 +639,7 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                //console.error(this.props.niceties, status, err.toString());
+                console.error(this.props.niceties, status, err.toString());
             }.bind(this)
         });
     },
@@ -652,7 +652,7 @@ var App = React.createClass({
                 callback(data);
             },
             error: function(xhr, status, err) {
-                //console.error(this.props.niceties, status, err.toString());
+                console.error(this.props.niceties, status, err.toString());
             }.bind(this)
         });
     },

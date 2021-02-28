@@ -40,9 +40,9 @@ def authorized():
     session['rc_token'] = {
             'access_token': resp['access_token'],
             'refresh_token': resp['refresh_token'],
-            'expires_at': resp['expires_in'] + time() - 600 
+            'expires_at': resp['expires_in'] + time() - 600
     }
-    me = rc.get('people/me').data
+    me = rc.get('profiles/me').data
     user = User.query.get(me['id'])
     if user is None:
         user = User(
@@ -63,7 +63,7 @@ def get_oauth_token():
     token = session.get('rc_token')
     if time() > token['expires_at']:
         data = {
-                'grant_type': 'refresh_token', 
+                'grant_type': 'refresh_token',
                 'client_id': rc.consumer_key,
                 'client_secret': rc.consumer_secret,
                 'redirect_uri': 'ietf:wg:oauth:2.0:oob',
@@ -71,14 +71,15 @@ def get_oauth_token():
                 }
         resp = requests.post('https://www.recurse.com/oauth/token', data=data)
         data = resp.json()
+        print(data)
         session['rc_token'] = {
             'access_token': data['access_token'],
             'refresh_token': data['refresh_token'],
-            'expires_at': data['expires_in'] + time() - 600 
+            'expires_at': data['expires_in'] + time() - 600
         }
         return (data['access_token'], '')
     else:
-        return (token['access_token'], '') 
+        return (token['access_token'], '')
 
 _current_user_memo = None
 
