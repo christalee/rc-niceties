@@ -78,19 +78,14 @@ def get_current_faculty():
     ''' faculty will always appear in
     the most recent batch!
     '''
-    # TODO examine this API call to see what's returned
     f = rc.get('profiles?role=faculty').data
-    # print(f)
     faculty = []
     for p in f:
         for stint in p['stints']:
-            if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] == None:
+            if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] is None:
                 faculty.append(cache_person_call(p["id"]))
                 break
-    # for batch in get_current_batches_info():
-    #     for p in cache_people_call(batch['id'], "faculty"):
-    #         if p['is_faculty'] is True:
-    #             faculty.append(p)
+
     return faculty
 
 def get_current_batches_info():
@@ -125,10 +120,9 @@ def partition_current_users(users):
     staying_date = datetime.strptime(end_dates[0], "%Y-%m-%d")
     leaving_date = datetime.strptime(end_dates[1], "%Y-%m-%d")
     for u in users:
-        # Batchlings have   is_hacker_schooler = True,      is_faculty = False
-        # Faculty have      is_hacker_schooler = ?,         is_faculty = True
-        # Residents have    is_hacker_schooler = False,     is_faculty = False
-        # TODO restore these conditions
+        # Batchlings have   is_recurser = True,      is_faculty = False
+        # Faculty have      is_recurser = ?,         is_faculty = True
+        # Residents have    is_recurser = False,     is_faculty = False
         if ((u['is_recurser'] and not u['is_faculty']) or
             (not u['is_faculty'] and not u['is_recurser'] and config.get(config.INCLUDE_RESIDENTS, False)) or
             (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
@@ -178,7 +172,12 @@ def post_edited_niceties():
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
     if is_admin is True:
-        valid_niceties = (Nicety.query
+        if app.config.get('DEV') == 'TRUE':
+            valid_niceties = (Nicety.query
+                            .order_by(Nicety.target_id)
+                            .all())
+        else:
+            valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
                           .order_by(Nicety.target_id)
