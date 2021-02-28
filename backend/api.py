@@ -22,6 +22,23 @@ def cache_batches_call():
     batches = res.data
     return batches
 
+def format_info(p):
+    person_info = {
+        'id': p['id'],
+        'name': util.name_from_rc_person(p),
+        'full_name': util.full_name_from_rc_person(p),
+        'avatar_url': p['image_path'],
+        'bio': p['bio_rendered'],
+        'interests': p['interests_rendered'],
+        'before_rc': p['before_rc_rendered'],
+        'during_rc': p['during_rc_rendered'],
+        'job': p['employer_info_rendered'],
+        'twitter': p['twitter'],
+        'github': p['github'],
+    }
+
+    return person_info
+
 def cache_people_call(batch_id, role):
     people = []
     batches = rc.get('profiles?batch_id={}&role={}'.format(batch_id, role)).data
@@ -33,26 +50,16 @@ def cache_people_call(batch_id, role):
                 e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
                 if latest_end_date is None or e > latest_end_date:
                     latest_end_date = e
-        people.append({
-            'id': p['id'],
-            # TODO figure out where all this info is supposed to be displayed
-            # TODO can cache_people_call and cache_person_call be refactored?
-            # 'is_faculty': p['is_faculty'],
-            # 'is_hacker_schooler': p['is_hacker_schooler'],
-            'name': util.name_from_rc_person(p),
-            'full_name': util.full_name_from_rc_person(p),
-            'avatar_url': p['image_path'],
-            'stints': p['stints'],
-            'bio': p['bio_rendered'],
-            'interests': p['interests_rendered'],
-            'before_rc': p['before_rc_rendered'],
-            'during_rc': p['during_rc_rendered'],
-            'job': p['employer_info_rendered'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-            'repos': repo_info,
+        info = format_info(p)
+        info.update({
+            'is_faculty': True if role == "faculty" else False,
+            'is_recurser': True if role == "recurser" else False,
+            'repos': repo_info, # TODO what is this for?
             'end_date': latest_end_date,
+            'stints': p['stints']
         })
+
+        people.append(info)
     return people
 
 def cache_person_call(person_id):
@@ -63,20 +70,7 @@ def cache_person_call(person_id):
         p = rc.get('profiles/{}'.format(person_id)).data
         # if 'message' in p:
         #     return redirect(url_for('login'))
-        person_info = {
-            'id': p['id'],
-            'name': p['first_name'],
-            'full_name': p['first_name'] + " " + p['last_name'],
-            'avatar_url': p['image_path'],
-            # 'is_faculty': p['is_faculty'],
-            'bio': p['bio_rendered'],
-            'interests': p['interests_rendered'],
-            'before_rc': p['before_rc_rendered'],
-            'during_rc': p['during_rc_rendered'],
-            'job': p['employer_info_rendered'],
-            'twitter': p['twitter'],
-            'github': p['github'],
-        }
+        person_info = format_info(p)
         cache.set(cache_key, person_info)
     return person_info
 
@@ -85,14 +79,18 @@ def get_current_faculty():
     the most recent batch!
     '''
     # TODO examine this API call to see what's returned
-    # f = rc.get('profiles?role=faculty').data
+    f = rc.get('profiles?role=faculty').data
+    # print(f)
     faculty = []
-    # for p in f:
-    #     faculty.append(cache_person_call(p["id"]))
-    for batch in get_current_batches_info():
-        for p in cache_people_call(batch['id'], "faculty"):
-            # if p['is_faculty'] is True:
-                faculty.append(p)
+    for p in f:
+        for stint in p['stints']:
+            if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] == None:
+                faculty.append(cache_person_call(p["id"]))
+                break
+    # for batch in get_current_batches_info():
+    #     for p in cache_people_call(batch['id'], "faculty"):
+    #         if p['is_faculty'] is True:
+    #             faculty.append(p)
     return faculty
 
 def get_current_batches_info():
@@ -131,9 +129,9 @@ def partition_current_users(users):
         # Faculty have      is_hacker_schooler = ?,         is_faculty = True
         # Residents have    is_hacker_schooler = False,     is_faculty = False
         # TODO restore these conditions
-        # if ((u['is_hacker_schooler'] and not u['is_faculty']) or
-        #     (not u['is_faculty'] and not u['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
-        #     (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
+        if ((u['is_recurser'] and not u['is_faculty']) or
+            (not u['is_faculty'] and not u['is_recurser'] and config.get(config.INCLUDE_RESIDENTS, False)) or
+            (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
             elif u['end_date'] == leaving_date:
@@ -176,11 +174,10 @@ def get_self_info():
 def post_edited_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    # TODO rename is_rachel, as cute as it is
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
-    if is_rachel is True:
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
@@ -217,11 +214,11 @@ def post_edited_niceties():
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
 def get_niceties_to_edit():
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = request.form.get("author_id")
     nicety_target = request.form.get("target_id")
-    if is_rachel is True:
+    if is_admin is True:
         (Nicety.query
          .filter(Nicety.author_id == nicety_author)
          .filter(Nicety.target_id == nicety_target)
@@ -311,22 +308,23 @@ def display_people():
     staying = [person for person in people['staying']]
     faculty = get_current_faculty()
     # TODO there needs to be a better way to add special people to the current exiting batch
-    special = [x for x in faculty if x['id'] == 601]
+    # special = [x for x in faculty if x['id'] == 601]
     random.seed(current_user().random_seed)
     random.shuffle(staying)
     random.shuffle(leaving)
     # random.shuffle(special)
+    random.shuffle(faculty)
     if current_user_leaving is True:
         to_display = {
             'staying': staying,
             'leaving': leaving,
-            'special': special,
+            # 'special': special,
             'faculty': faculty
         }
     else:
         to_display = {
             'leaving': leaving,
-            'special': special,
+            # 'special': special,
             'faculty': faculty
         }
     return jsonify(to_display)

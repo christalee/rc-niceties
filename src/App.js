@@ -125,7 +125,8 @@ var People = React.createClass({
         let noReadRender;
         let leaving = this.generateRows(this.props.people.leaving);
         let staying = this.generateRows(this.props.people.staying);
-        let special = this.generateRows(this.props.people.special);
+        // let special = this.generateRows(this.props.people.special);
+        let faculty = this.generateRows(this.props.people.faculty);
         const savePass = this.saveReady.bind(this);
 
         let maybeHeader  = '';
@@ -141,7 +142,12 @@ var People = React.createClass({
         let staffHeader;
         let staffRows;
         //if (staying.length > 0) {
-            staffRows = special.map(function(row) {
+            // staffRows = special.map(function(row) {
+            //     return (
+            //         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
+            //     );
+            // }.bind(this))
+            staffRows = faculty.map(function(row) {
                 return (
                     <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                 );
