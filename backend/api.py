@@ -23,6 +23,13 @@ def cache_batches_call():
     return batches
 
 def format_info(p):
+    repo_info = []
+    latest_end_date = None
+    for stint in p['stints']:
+        if stint['end_date'] is not None:
+            e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
+            if latest_end_date is None or e > latest_end_date:
+                latest_end_date = e
     person_info = {
         'id': p['id'],
         'name': util.name_from_rc_person(p),
@@ -35,6 +42,9 @@ def format_info(p):
         'job': p['employer_info_rendered'],
         'twitter': p['twitter'],
         'github': p['github'],
+        'stints': p['stints'],
+        'repos': repo_info, # TODO what is this for?
+        'end_date': latest_end_date,
     }
 
     return person_info
@@ -43,20 +53,10 @@ def cache_people_call(batch_id, role):
     people = []
     batches = rc.get('profiles?batch_id={}&role={}'.format(batch_id, role)).data
     for p in batches:
-        repo_info = []
-        latest_end_date = None
-        for stint in p['stints']:
-            if stint['end_date'] is not None:
-                e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
-                if latest_end_date is None or e > latest_end_date:
-                    latest_end_date = e
         info = format_info(p)
         info.update({
             'is_faculty': True if role == "faculty" else False,
             'is_recurser': True if role == "recurser" else False,
-            'repos': repo_info, # TODO what is this for?
-            'end_date': latest_end_date,
-            'stints': p['stints']
         })
 
         people.append(info)
