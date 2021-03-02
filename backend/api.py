@@ -14,22 +14,32 @@ import backend.util as util
 
 # import sys
 # from functools import partial
-# from urllib.request import Request, urlopen
+from urllib.request import urlopen
 # from operator import is_not
 
-def cache_batches_call():
-    res = rc.get('batches')
-    batches = res.data
-    return batches
-
 def format_info(p):
-    repo_info = []
     latest_end_date = None
+    is_recurser = False
     for stint in p['stints']:
-        if stint['end_date'] is not None:
+        if stint['end_date']:
+            is_recurser = True
             e = datetime.strptime(stint['end_date'], '%Y-%m-%d')
             if latest_end_date is None or e > latest_end_date:
                 latest_end_date = e
+
+    if p['github']:
+        repo_info = []
+        repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+        for repo in repos:
+            repo_info.append({'name': repo['name'],
+                            'description': repo['description'],
+                            })
+
+    if p['interests_rendered']:
+        placeholder = util.name_from_rc_person(p) + " is interested in: " + p['interests_hl']
+    else:
+        placeholder = "Say something nice about " + util.name_from_rc_person(p) + "!"
+
     person_info = {
         'id': p['id'],
         'name': util.name_from_rc_person(p),
@@ -43,23 +53,38 @@ def format_info(p):
         'twitter': p['twitter'],
         'github': p['github'],
         'stints': p['stints'],
-        'repos': repo_info, # TODO what is this for?
+        'repos': repo_info,
         'end_date': latest_end_date,
-    }
+        'placeholder': placeholder,
+        'is_recurser': is_recurser,
+        'is_faculty': False,
+        }
 
     return person_info
 
-def cache_people_call(batch_id, role):
-    people = []
-    batches = rc.get('profiles?batch_id={}&role={}'.format(batch_id, role)).data
-    for p in batches:
-        info = format_info(p)
-        info.update({
-            'is_faculty': True if role == "faculty" else False,
-            'is_recurser': True if role == "recurser" else False,
-        })
+def cache_batches_call():
+    cache_key = 'open_batches_list'
+    try:
+        batches = cache.get(cache_key)
+    except cache.NotInCache:
+        batches = rc.get('batches').data
+        cache.set(cache_key, batches)
+    # res = rc.get('batches')
+    # batches = res.data
+    return batches
 
-        people.append(info)
+def cache_people_call(batch_id):
+    cache_key = 'batches_people_list:{}'.format(batch_id)
+    try:
+        people = cache.get(cache_key)
+    except cache.NotInCache:
+        people = []
+        batches = rc.get('profiles?batch_id={}'.format(batch_id)).data
+        for p in batches:
+            info = format_info(p)
+
+            people.append(info)
+            cache.set(cache_key, people)
     return people
 
 def cache_person_call(person_id):
@@ -68,8 +93,6 @@ def cache_person_call(person_id):
         return cache.get(cache_key)
     except cache.NotInCache:
         p = rc.get('profiles/{}'.format(person_id)).data
-        # if 'message' in p:
-        #     return redirect(url_for('login'))
         person_info = format_info(p)
         cache.set(cache_key, person_info)
     return person_info
@@ -83,7 +106,9 @@ def get_current_faculty():
     for p in f:
         for stint in p['stints']:
             if stint['type'] in ["employment", 'facilitatorship'] and stint['end_date'] is None:
-                faculty.append(cache_person_call(p["id"]))
+                info = cache_person_call(p["id"])
+                info['is_faculty'] = True
+                faculty.append(info)
                 break
 
     return faculty
@@ -98,7 +123,7 @@ def get_current_batches_info():
 def get_current_users():
     batches = get_current_batches_info()
     if batches != []:
-        return [person for batch in batches for person in cache_people_call(batch['id'], "recurser")]
+        return [person for batch in batches for person in cache_people_call(batch['id'])]
     else:
         return []
 

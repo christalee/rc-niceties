@@ -40,7 +40,6 @@ def name_from_rc_person(person):
     Returns a name as a string from an RC person object.
     '''
     return person['first_name']
-    #return '{} {}'.format(person['first_name'], person['last_name'])
 
 def full_name_from_rc_person(person):
     '''
@@ -60,7 +59,7 @@ def next_window(latest_batches):
         if earliest_end_date is None or e < earliest_end_date:
             earliest_end_date = e
     time_left = earliest_end_date - now
-    # print(time_left.days, time_left.seconds)
+
     return end_date
 
 def admin_access(current_user):

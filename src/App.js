@@ -347,7 +347,7 @@ var Person = React.createClass({
 
     // hold a callback in the parent and pass it to the child as a prop that gets called in onChange
     // this callback would have the parent update its own min/max rows and pass this to all children
-    // but it seems like for this to work you need child.state.height (to figureo ut the new min rows)
+    // but it seems like for this to work you need child.state.height (to figure out the new min rows)
 
     render: function() {
         let anonymousRender;
@@ -397,6 +397,7 @@ var Person = React.createClass({
                 defaultValue={this.state.textValue}
                 onChange={this.textareaChange}
                 rows="6"
+                placeholder={this.props.data.placeholder}
             />
             {anonymousRender}
             {noReadRender}
