@@ -26,34 +26,29 @@ var People = React.createClass({
         const dateUpdated = new Date(Date.now());
         const dateUpdatedStr = dateUpdated.toUTCString();
         updated_niceties.forEach(function(e) {
-            var split_e = e.split(",");
+          let user_id = String(e[0])
+          let end_date = e[1]
             let anonymous;
-            let end_date;
-            if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
+            if (localStorage.getItem("anonymous-" + user_id) === "undefined" || localStorage.getItem("anonymous-" + user_id) === null) {
                 anonymous = "false";
             } else {
-                anonymous = localStorage.getItem("anonymous-" + split_e[0]);
+                anonymous = localStorage.getItem("anonymous-" + user_id);
             }
             let text;
-            if (localStorage.getItem("nicety-" + split_e[0]) === "undefined" || localStorage.getItem("nicety-" + split_e[0]) === null) {
+            if (localStorage.getItem("nicety-" + user_id) === "undefined" || localStorage.getItem("nicety-" + user_id) === null) {
                 text = '';
             } else {
-                text = localStorage.getItem("nicety-" + split_e[0]);
+                text = localStorage.getItem("nicety-" + user_id);
             }
             let noRead;
-            if (localStorage.getItem("no_read-" + split_e[0]) === "undefined" || localStorage.getItem("no_read-" + split_e[0]) === null) {
+            if (localStorage.getItem("no_read-" + user_id) === "undefined" || localStorage.getItem("no_read-" + user_id) === null) {
                 noRead = "false";
             } else {
-                noRead = localStorage.getItem("no_read-" + split_e[0]);
-            }
-            if (split_e[1] === "null") {
-              end_date = null;
-            } else {
-              end_date = split_e[1];
+                noRead = localStorage.getItem("no_read-" + user_id);
             }
             data_to_save.push(
                 {
-                    target_id: parseInt(split_e[0], 10),
+                    target_id: parseInt(user_id, 10),
                     end_date: end_date,
                     anonymous: anonymous.toString(),
                     text: text,
@@ -74,8 +69,7 @@ var People = React.createClass({
                 this.setState({justSaved: true});
                 localStorage.setItem("saved", "true");
                 updated_niceties.forEach(function(e) {
-                    const split_e = e.split(",");
-                    localStorage.setItem("date_updated-" + split_e[0], dateUpdatedStr);
+                    localStorage.setItem("date_updated-" + e[0], dateUpdatedStr);
                 });
                 updated_niceties.clear();
             }.bind(this),
@@ -311,11 +305,12 @@ var Person = React.createClass({
         while (updated_niceties_spinlock) {}
         let addString;
         if (this.props.data.stints.length > 0) {
-            addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
+          // TODO addString is now an Array, change var name?
+          addString = [this.props.data.id, this.props.data.stints[this.props.data.stints.length - 1].end_date];
         } else {
             // use today's date rather than a hardcoded string
             d = new Date();
-            addString = this.props.data.id + "," + d.toISOString.slice(0, 10);
+            addString = [this.props.data.id, d.toISOString().slice(0, 10)];
         }
         if (!(addString in updated_niceties)) {
             updated_niceties.add(addString);
