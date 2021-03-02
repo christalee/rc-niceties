@@ -28,6 +28,7 @@ var People = React.createClass({
         updated_niceties.forEach(function(e) {
             var split_e = e.split(",");
             let anonymous;
+            let end_date;
             if (localStorage.getItem("anonymous-" + split_e[0]) === "undefined" || localStorage.getItem("anonymous-" + split_e[0]) === null) {
                 anonymous = "false";
             } else {
@@ -45,10 +46,15 @@ var People = React.createClass({
             } else {
                 noRead = localStorage.getItem("no_read-" + split_e[0]);
             }
+            if (split_e[1] === "null") {
+              end_date = null;
+            } else {
+              end_date = split_e[1];
+            }
             data_to_save.push(
                 {
                     target_id: parseInt(split_e[0], 10),
-                    end_date: split_e[1],
+                    end_date: end_date,
                     anonymous: anonymous.toString(),
                     text: text,
                     no_read: noRead.toString(),
@@ -181,13 +187,13 @@ var People = React.createClass({
                     );
                 }.bind(this))}
                 <hr />
-                {maybeHeader}
+                { maybeHeader }
                 {staying.map(function(row) {
                     return (
                         <PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass}/>
                     );
                 }.bind(this))}
-                {maybeHR}
+                { maybeHR }
                 { staffHeader }
                 { staffRows }
             </Grid>
@@ -307,7 +313,9 @@ var Person = React.createClass({
         if (this.props.data.stints.length > 0) {
             addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
         } else {
-            addString = this.props.data.id + ",2016-11-03";
+            // use today's date rather than a hardcoded string
+            d = new Date();
+            addString = this.props.data.id + "," + d.toISOString.slice(0, 10);
         }
         if (!(addString in updated_niceties)) {
             updated_niceties.add(addString);
