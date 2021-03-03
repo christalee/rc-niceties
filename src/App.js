@@ -122,7 +122,7 @@ var People = React.createClass({
     },
 
     render: function() {
-        let noReadRender;
+        // let noReadRender;
         let leaving = this.generateRows(this.props.people.leaving);
         let staying = this.generateRows(this.props.people.staying);
         // let special = this.generateRows(this.props.people.special);
