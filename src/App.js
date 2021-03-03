@@ -550,17 +550,34 @@ var Admin = React.createClass({
 // abc
 var AdminNicety = React.createClass({
     getInitialState: function() {
+      // if (localStorage.getItem("reviewed-" + this.props.target_id + this.props.nicety.author_id) !== null) {
+      //     reviewedValue = localStorage.getItem("reviewed-" + this.props.target_id + this.props.nicety.author_id);
+      // }
         return {
             text: this.props.nicety.text,
-            noSave: true
+            noSave: true,
+            reviewedValue: this.props.nicety.reviewed.toString(),
         };
     },
-
+    // saveReady: function () {
+    //     this.setState({noSave: false});
+    // },
+    // updateSave: function(event) {
+    //     while (updated_niceties_spinlock) {}
+        // localStorage.setItem("saved", "false");
+        // this.props.saveReady();
+    // },
+    reviewedChange: function(event) {
+        this.setState({reviewedValue: event.target.checked.toString(), noSave: false});
+        // localStorage.setItem("reviewed-" + this.props.target_id + this.props.nicety.author_id, event.target.checked.toString());
+        // this.updateSave();
+    },
     saveNicety: function() {
         const data = {
             text: this.state.text,
             author_id: this.props.nicety.author_id,
-            target_id: this.props.target_id
+            target_id: this.props.target_id,
+            faculty_reviewed: this.state.reviewedValue,
         }
         $.ajax({
             url: this.props.admin_edit_api,
@@ -582,6 +599,26 @@ var AdminNicety = React.createClass({
     },
 
     render: function() {
+
+      let reviewedRender;
+      if (this.state.reviewedValue === "true") {
+          reviewedRender = (
+              <Checkbox
+                  checked
+                  onChange={this.reviewedChange}
+              >
+                  Reviewed
+              </Checkbox>
+          );
+      } else if (this.state.reviewedValue === "false") {
+          reviewedRender = (
+              <Checkbox
+                  onChange={this.reviewedChange}
+              >
+                  Reviewed
+              </Checkbox>
+          );
+      }
         let nicetyName;
         if ('name' in this.props.nicety) {
             nicetyName = this.props.nicety.name;
@@ -613,6 +650,7 @@ var AdminNicety = React.createClass({
                         onClick={this.saveNicety}>
                         Save
                     </SaveButton>
+                    {reviewedRender}
                     <br />
                 </div>
             );
