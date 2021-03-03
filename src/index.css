@@ -26,8 +26,8 @@ hr {
   display: inline;
 }
 
-#save_button {
-	padding: 10px;
+.save_button {
+  padding: 10px;
 }
 
 #recipient_page {
