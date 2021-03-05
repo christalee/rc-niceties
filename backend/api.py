@@ -1,21 +1,19 @@
-from flask import json, jsonify, request, abort, url_for, redirect, session
-from flask.views import MethodView
 import random
-
-from backend import app, rc, db
-from backend.models import Nicety, SiteConfiguration
-from backend.auth import current_user, needs_authorization, faculty_only, get_oauth_token
 from datetime import datetime, timedelta
-# from sqlalchemy import func
+# import sys
+# from functools import partial
+from urllib.request import urlopen
 
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
+from backend import app, db, rc
+from backend.auth import (current_user, faculty_only, get_oauth_token,
+                          needs_authorization)
+from backend.models import Nicety, SiteConfiguration
+from flask import abort, json, jsonify, redirect, request, session, url_for
+from flask.views import MethodView
 
-# import sys
-# from functools import partial
-from urllib.request import urlopen
-# from operator import is_not
 
 def format_info(p):
     latest_end_date = None
@@ -32,8 +30,8 @@ def format_info(p):
         repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
         for repo in repos:
             repo_info.append({'name': repo['name'],
-                            'description': repo['description'],
-                            })
+                              'description': repo['description'],
+                              })
 
     if p['interests_rendered']:
         placeholder = util.name_from_rc_person(p) + " is interested in: " + p['interests_hl']
@@ -58,9 +56,10 @@ def format_info(p):
         'placeholder': placeholder,
         'is_recurser': is_recurser,
         'is_faculty': False,
-        }
+    }
 
     return person_info
+
 
 def cache_batches_call():
     cache_key = 'open_batches_list'
@@ -72,6 +71,7 @@ def cache_batches_call():
     # res = rc.get('batches')
     # batches = res.data
     return batches
+
 
 def cache_people_call(batch_id):
     cache_key = 'batches_people_list:{}'.format(batch_id)
@@ -87,6 +87,7 @@ def cache_people_call(batch_id):
             cache.set(cache_key, people)
     return people
 
+
 def cache_person_call(person_id):
     cache_key = 'person:{}'.format(person_id)
     try:
@@ -96,6 +97,7 @@ def cache_person_call(person_id):
         person_info = format_info(p)
         cache.set(cache_key, person_info)
     return person_info
+
 
 def get_current_faculty():
     ''' faculty will always appear in
@@ -113,6 +115,7 @@ def get_current_faculty():
 
     return faculty
 
+
 def get_current_batches_info():
     batches = cache_batches_call()
     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
@@ -120,12 +123,14 @@ def get_current_batches_info():
         ret = []
     return ret
 
+
 def get_current_users():
     batches = get_current_batches_info()
     if batches != []:
         return [person for batch in batches for person in cache_people_call(batch['id'])]
     else:
         return []
+
 
 def partition_current_users(users):
     ret = {
@@ -150,7 +155,7 @@ def partition_current_users(users):
         # Residents have    is_recurser = False,     is_faculty = False
         if ((u['is_recurser'] and not u['is_faculty']) or
             (not u['is_faculty'] and not u['is_recurser'] and config.get(config.INCLUDE_RESIDENTS, False)) or
-            (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
+                (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
             elif u['end_date'] == leaving_date:
@@ -158,6 +163,7 @@ def partition_current_users(users):
             else:
                 pass
     return ret
+
 
 @app.route('/api/v1/people/<int:person_id>')
 @needs_authorization
@@ -178,6 +184,7 @@ def get_person_info(person_id):
 #             "opening": '',
 #         })
 
+
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
@@ -187,6 +194,7 @@ def get_self_info():
         'admin': admin
     }
     return jsonify(data)
+
 
 @app.route('/api/v1/admin-edit-niceties', methods=['GET'])
 @needs_authorization
@@ -199,14 +207,14 @@ def post_edited_niceties():
     if is_admin is True:
         if app.config.get('DEV') == 'TRUE':
             valid_niceties = (Nicety.query
-                            .order_by(Nicety.target_id)
-                            .all())
+                              .order_by(Nicety.target_id)
+                              .all())
         else:
             valid_niceties = (Nicety.query
-                          .filter(Nicety.end_date > three_weeks_ago)
-                          .filter(Nicety.end_date < three_weeks_from_now)
-                          .order_by(Nicety.target_id)
-                          .all())
+                              .filter(Nicety.end_date > three_weeks_ago)
+                              .filter(Nicety.end_date < three_weeks_from_now)
+                              .order_by(Nicety.target_id)
+                              .all())
         for n in valid_niceties:
             if n.target_id != last_target:
                 # ... set up the test for the next one
@@ -238,6 +246,7 @@ def post_edited_niceties():
     else:
         return jsonify({'authorized': "false"})
 
+
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
 def get_niceties_to_edit():
@@ -248,15 +257,16 @@ def get_niceties_to_edit():
     nicety_reviewed = request.form.get("faculty_reviewed")
     if is_admin is True:
         nicety = (Nicety.query
-         .filter(Nicety.author_id == nicety_author)
-         .filter(Nicety.target_id == nicety_target)
-         .one_or_none())
+                  .filter(Nicety.author_id == nicety_author)
+                  .filter(Nicety.target_id == nicety_target)
+                  .one_or_none())
         nicety.text = nicety_text
         nicety.faculty_reviewed = nicety_reviewed
         db.session.commit()
         return jsonify({'status': 'OK'})
     else:
         return jsonify({'authorized': "false"})
+
 
 @app.route('/api/v1/niceties-from-me')
 @needs_authorization
@@ -274,6 +284,7 @@ def niceties_from_me():
     } for n in niceties]
     return jsonify(ret)
 
+
 @app.route('/api/v1/niceties-for-me')
 @needs_authorization
 def niceties_for_me():
@@ -281,7 +292,7 @@ def niceties_for_me():
     whoami = current_user().id
     # two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now()) # show niceties one day after the end date
+                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
                       .filter(Nicety.target_id == whoami)
                       .all())
     for n in valid_niceties:
@@ -308,16 +319,19 @@ def niceties_for_me():
             ret.append(store)
     return jsonify(ret)
 
+
 @app.route('/api/v1/faculty')
 @needs_authorization
 def get_faculty():
     faculty = get_current_faculty()
     return jsonify(faculty)
 
+
 @app.route('/api/v1/batches')
 def get_all_batches():
     batches = cache_batches_call()
     return jsonify(batches)
+
 
 @app.route('/api/v1/people')
 @needs_authorization
@@ -359,23 +373,24 @@ def display_people():
         }
     return jsonify(to_display)
 
+
 @app.route('/api/v1/save-niceties', methods=['POST'])
 @needs_authorization
 def save_niceties():
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
     for n in niceties_to_save:
+        print(n)
         if n.get('end_date'):
             end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
         else:
             end_date = None
-        nicety = (
-            Nicety
-            .query      # Query is always about getting Nicety objects from the database
-            .filter_by(
-                end_date=end_date,
-                target_id=n.get("target_id"),
-                author_id=current_user().id)
-            .one_or_none())
+        nicety = (Nicety
+                  .query  # Query is always about getting Nicety objects from the database
+                  .filter_by(
+                      end_date=end_date,
+                      target_id=n.get("target_id"),
+                      author_id=current_user().id)
+                  .one_or_none())
         if nicety is None:
             nicety = Nicety(
                 end_date=end_date,
@@ -400,6 +415,7 @@ def save_niceties():
         nicety.date_updated = n.get("date_updated")
     db.session.commit()
     return jsonify({'status': 'OK'})
+
 
 class SiteSettingsAPI(MethodView):
     def get(self):
@@ -426,6 +442,7 @@ class SiteSettingsAPI(MethodView):
                 return abort(404)
         except:
             return abort(400)
+
 
 app.add_url_rule(
     '/api/v1/site_settings',

@@ -1,12 +1,12 @@
-from datetime import datetime, time, date, timedelta
 from base64 import b64decode, b64encode
-
-from backend import app
+from datetime import date, datetime, time, timedelta
 
 import backend.config as config
+from backend import app
 
 batch_closing_time_memo = {}
 batch_closing_warning_time_memo = {}
+
 
 def open_batches(end_date):
     '''
@@ -19,6 +19,7 @@ def open_batches(end_date):
     closing_time = datetime.combine(end_date, time(hour=10, minute=0))
     now = datetime.now()
     return (closing_time > now)
+
 
 def niceties_are_open(latest_batches):
     '''
@@ -35,17 +36,20 @@ def niceties_are_open(latest_batches):
             return True
     return False
 
+
 def name_from_rc_person(person):
     '''
     Returns a name as a string from an RC person object.
     '''
     return person['first_name']
 
+
 def full_name_from_rc_person(person):
     '''
     Returns a name as a string from an RC person object.
     '''
     return '{} {}'.format(person['first_name'], person['last_name'])
+
 
 def next_window(latest_batches):
     '''
@@ -62,16 +66,19 @@ def next_window(latest_batches):
 
     return end_date
 
+
 def admin_access(current_user):
     if app.config.get('DEV') == 'TRUE' or current_user.id == 770 or current_user.id == 1804:
         return True
     else:
         return False
 
+
 def encode_str(inp):
     if inp is None:
         return None
     return b64encode(inp.encode('utf-8')).decode('utf-8')
+
 
 def decode_str(inp):
     if inp is None:
