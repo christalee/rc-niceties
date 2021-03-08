@@ -111,8 +111,8 @@ def print_niceties():
                 # ... set up the test for the next one
                 last_target = target
                 ret[target] = []  # initialize the dictionary
-            if n.text is not None and n.text.isspace() == False:
-                if n.anonymous == False:
+            if n.text is not None and n.text.isspace() is False:
+                if n.anonymous is False:
                     ret[target].append({
                         'author_id': n.author_id,
                         'anon': False,

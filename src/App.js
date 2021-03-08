@@ -69,6 +69,7 @@ var People = React.createClass({
         this.setState({justSaved: true});
         localStorage.setItem("saved", "true");
         updated_niceties.forEach(function(e) {
+          // This is inconsistent with String(e[0]) on ln 29
           localStorage.setItem("date_updated-" + e[0], dateUpdatedStr);
         });
         updated_niceties.clear();
@@ -114,7 +115,6 @@ var People = React.createClass({
   },
 
   render: function() {
-    // let noReadRender;
     let leaving = this.generateRows(this.props.people.leaving);
     let staying = this.generateRows(this.props.people.staying);
     // let special = this.generateRows(this.props.people.special);
@@ -201,11 +201,12 @@ var SaveButton = React.createClass({
 
 var PeopleRow = React.createClass({
   render: function() {
+    // TODO is this passed properly?
     const saveButton = this.props.saveButton;
     return (<Row>
       {
         this.props.data.map(function(result) {
-          return (<Col lg="3" md="4" sm="6" xs="12">
+          return (<Col lg="3" md="6" sm="6" xs="12">
             <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} saveButton={saveButton}/>
           </Col>);
         }.bind(this))
@@ -215,7 +216,6 @@ var PeopleRow = React.createClass({
 });
 
 var Person = React.createClass({
-
   getInitialState: function() {
     let textValue = '';
     let checkValue = "false";
@@ -292,6 +292,7 @@ var Person = React.createClass({
       ];
     }
     if (!(addString in updated_niceties)) {
+      console.log(addString);
       updated_niceties.add(addString);
     }
     localStorage.setItem("saved", "false");
@@ -352,22 +353,8 @@ var Person = React.createClass({
   }
 });
 
-var NicetyRow = React.createClass({
-  render: function() {
-    return (<Row>
-      {
-        this.props.data.map(function(result) {
-          return (<Col lg="3" md="4" sm="6" xs="12">
-            <Nicety data={result}/>
-          </Col>);
-        })
-      }
-    </Row>);
-  }
-});
 
 var NicetyDisplay = React.createClass({
-
   getInitialState: function() {
     return {niceties: []};
   },
@@ -400,8 +387,21 @@ var NicetyDisplay = React.createClass({
   }
 });
 
-var Nicety = React.createClass({
+var NicetyRow = React.createClass({
+  render: function() {
+    return (<Row>
+      {
+        this.props.data.map(function(result) {
+          return (<Col lg="3" md="6" sm="6" xs="12">
+            <Nicety data={result}/>
+          </Col>);
+        })
+      }
+    </Row>);
+  }
+});
 
+var Nicety = React.createClass({
   render: function() {
     let photo;
     if (this.props.data.anonymous) {

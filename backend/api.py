@@ -22,13 +22,13 @@ def format_info(p):
             if latest_end_date is None or e > latest_end_date:
                 latest_end_date = e
 
-    if p['github']:
-        repo_info = []
-        repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
-        for repo in repos:
-            repo_info.append({'name': repo['name'],
-                              'description': repo['description'],
-                              })
+    repo_info = []
+    # if p['github']
+    #     repos = json.loads(urlopen("https://api.github.com/users/{}/repos".format(p['github'])).read())
+    #     for repo in repos:
+    #         repo_info.append({'name': repo['name'],
+    #                           'description': repo['description'],
+    #                           })
 
     if p['interests_rendered']:
         placeholder = util.name_from_rc_person(p) + " is interested in: " + p['interests_hl']
@@ -212,9 +212,9 @@ def post_edited_niceties():
             else:
                 ret[n.target_id].append({
                     'author_id': n.author_id,
-                    'text': util.decode_str(n.text),
                     'no_read': n.no_read,
                     'reviewed': n.faculty_reviewed,
+                    'text': util.decode_str(n.text),
                 })
         return jsonify([
             {
@@ -271,10 +271,14 @@ def niceties_from_me():
 def niceties_for_me():
     ret = []
     whoami = current_user().id
-    valid_niceties = (Nicety.query
-                      .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
-                      .filter(Nicety.target_id == whoami)
-                      .all())
+    if app.config.get("DEV") == "TRUE":
+        valid_niceties = (Nicety.query
+                          .all())
+    else:
+        valid_niceties = (Nicety.query
+                          .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
+                          .filter(Nicety.target_id == whoami)
+                          .all())
     for n in valid_niceties:
         if n.text is not None:
             if n.anonymous is True:
