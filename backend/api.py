@@ -118,11 +118,11 @@ def partition_current_users(users):
     staying_date = datetime.strptime(end_dates[0], "%Y-%m-%d")
     leaving_date = datetime.strptime(end_dates[1], "%Y-%m-%d")
     for u in users:
-        # Batchlings have   is_hacker_schooler = True,      is_faculty = False
-        # Faculty have      is_hacker_schooler = ?,         is_faculty = True
-        # Residents have    is_hacker_schooler = False,     is_faculty = False
-        if ((u['is_hacker_schooler'] and not u['is_faculty']) or
-            (not u['is_faculty'] and not u['is_hacker_schooler'] and config.get(config.INCLUDE_RESIDENTS, False)) or
+        # Batchlings have   is_recurser = True,      is_faculty = False
+        # Faculty have      is_recurser = ?,         is_faculty = True
+        # Residents have    is_recurser = False,     is_faculty = False
+        if ((u['is_recurser'] and not u['is_faculty']) or
+            (not u['is_faculty'] and not u['is_recurser'] and config.get(config.INCLUDE_RESIDENTS, False)) or
                 (u['is_faculty'] and config.get(config.INCLUDE_FACULTY, False))):
             if u['end_date'] == staying_date:
                 ret['staying'].append(u)
@@ -155,10 +155,10 @@ def get_self_info():
 def post_edited_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
     last_target = None
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
-    if is_rachel is True:
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
@@ -196,11 +196,11 @@ def post_edited_niceties():
 @app.route('/api/v1/admin-edit-niceties', methods=['POST'])
 @needs_authorization
 def get_niceties_to_edit():
-    is_rachel = util.admin_access(current_user())
+    is_admin = util.admin_access(current_user())
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = request.form.get("author_id")
     nicety_target = request.form.get("target_id")
-    if is_rachel is True:
+    if is_admin is True:
         (Nicety.query
          .filter(Nicety.author_id == nicety_author)
          .filter(Nicety.target_id == nicety_target)
@@ -310,6 +310,7 @@ def display_people():
             'leaving': leaving,
             'special': special
         }
+
     return jsonify(to_display)
 
 

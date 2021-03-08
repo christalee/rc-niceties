@@ -1,4 +1,5 @@
 import os
+from base64 import b64decode, b64encode
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
@@ -45,8 +46,8 @@ def font():
 @app.route('/niceties-by-sender')
 def niceties_by_sender():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    is_rachel = admin_access(current_user())
-    if is_rachel is True:
+    is_admin = admin_access(current_user())
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .order_by(Nicety.author_id)
                           .all())
@@ -93,10 +94,10 @@ def niceties_by_sender():
 @app.route('/print-niceties')
 def print_niceties():
     ret = {}    # Mapping from target_id to a list of niceties for that person
-    is_rachel = admin_access(current_user())
+    is_admin = admin_access(current_user())
     three_weeks_ago = datetime.now() - timedelta(days=21)
     three_weeks_from_now = datetime.now() + timedelta(days=21)
-    if is_rachel is True:
+    if is_admin is True:
         valid_niceties = (Nicety.query
                           .filter(Nicety.end_date > three_weeks_ago)
                           .filter(Nicety.end_date < three_weeks_from_now)
