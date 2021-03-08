@@ -1,15 +1,13 @@
 import os
-from base64 import b64decode, b64encode
 from collections import OrderedDict
 from datetime import datetime, timedelta
 
 from backend import app
 from backend.api import cache_person_call
 from backend.auth import current_user, needs_authorization
-from backend.models import Nicety, SiteConfiguration
-from backend.util import admin_access, decode_str, encode_str
-from flask import (abort, json, jsonify, redirect, render_template, send_file,
-                   send_from_directory, url_for)
+from backend.models import Nicety
+from backend.util import admin_access, decode_str
+from flask import abort, jsonify, render_template, send_file
 
 
 @app.route('/')

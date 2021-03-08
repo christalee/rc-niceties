@@ -2,11 +2,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
 import { Button, Grid, Row, Col, Image, Nav, Navbar, NavDropdown, MenuItem, Checkbox, Modal } from 'react-bootstrap';
-// import ReactDOM, { findDOMNode } from 'react-dom';
-import React, { Component } from 'react';
+import React from 'react';
 
-// import Remarkable from 'remarkable';
-// import logo from './logo.svg';
 import octotie from './octotie.png';
 import suittie from './suittie.png';
 import $ from 'jquery';

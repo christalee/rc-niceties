@@ -1,9 +1,6 @@
 import os
 from base64 import b64decode
 
-import backend.api
-import backend.auth
-import backend.static
 from flask import Flask
 from flask_oauthlib.client import OAuth
 from flask_sqlalchemy import SQLAlchemy
@@ -35,11 +32,14 @@ with app.app_context():
         request_token_url=None,
         authorize_url='https://www.recurse.com/oauth/authorize',
         consumer_key=os.environ['RC_OAUTH_ID'],  # Deliberately throw exception if not set
-        consumer_secret=os.environ['RC_OAUTH_SECRET'],  # Deliberately throw exception it not set
+        consumer_secret=os.environ['RC_OAUTH_SECRET'],  # Deliberately throw exception if not set
         access_token_method='POST',
     )
 
 # Imports for URLs that should be available
+import backend.api  # noqa
+import backend.auth  # noqa
+import backend.static  # noqa
 
 # This file exports:
 #   app     The Flask() object

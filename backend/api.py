@@ -1,17 +1,14 @@
 import random
 from datetime import datetime, timedelta
-# import sys
-# from functools import partial
 from urllib.request import urlopen
 
 import backend.cache as cache
 import backend.config as config
 import backend.util as util
 from backend import app, db, rc
-from backend.auth import (current_user, faculty_only, get_oauth_token,
-                          needs_authorization)
+from backend.auth import current_user, needs_authorization
 from backend.models import Nicety, SiteConfiguration
-from flask import abort, json, jsonify, redirect, request, session, url_for
+from flask import abort, json, jsonify, redirect, request, url_for
 from flask.views import MethodView
 
 
@@ -79,12 +76,11 @@ def cache_people_call(batch_id):
         people = cache.get(cache_key)
     except cache.NotInCache:
         people = []
-        batches = rc.get('profiles?batch_id={}'.format(batch_id)).data
-        for p in batches:
+        batch = rc.get('profiles?batch_id={}'.format(batch_id)).data
+        for p in batch:
             info = format_info(p)
-
             people.append(info)
-            cache.set(cache_key, people)
+        cache.set(cache_key, people)
     return people
 
 
@@ -137,7 +133,6 @@ def partition_current_users(users):
         'staying': [],
         'leaving': []
     }
-    # TODO does Leaving actually show up on the page?
     user_stints = [user['stints'] for user in users]
     end_dates = []
     for stints in user_stints:
@@ -171,24 +166,10 @@ def get_person_info(person_id):
     person_info = cache_person_call(person_id)
     return jsonify(person_info)
 
-# TODO if this is unnecessary, remove it?
-# @app.route('api/v1/window')
-# @needs_authorization
-# def get_window_info():
-#     ret = [batch for batch in batches if util.open_batches(batch['end_date'])]
-#     if not util.niceties_are_open(batches) or len(ret) == 1:
-#         ret = []
-#     return jsonify(
-#         {
-#             "status": 'closed',
-#             "opening": '',
-#         })
-
 
 @app.route('/api/v1/self')
 @needs_authorization
 def get_self_info():
-    #self_info = rc.get('people/me').data
     admin = util.admin_access(current_user())
     data = {
         'admin': admin
@@ -290,7 +271,6 @@ def niceties_from_me():
 def niceties_for_me():
     ret = []
     whoami = current_user().id
-    # two_weeks_from_now = datetime.now() - timedelta(days=14)
     valid_niceties = (Nicety.query
                       .filter(Nicety.end_date + timedelta(days=1) < datetime.now())  # show niceties one day after the end date
                       .filter(Nicety.target_id == whoami)
