@@ -1,22 +1,28 @@
-import React, { Component, PropTypes } from 'react';
+import React from 'react';
+import { Image } from 'react-bootstrap';
 
+import suittie from '../suittie.png';
 
-class Nicety extends Component {
-  render() {
-    return (
-      <div className="Nicety">
-        <h2></h2>
-      </div>
-    );
+const Nicety = React.createClass({
+  render: function() {
+    let photo;
+    if (this.props.data.anonymous) {
+      photo = suittie;
+    } else {
+      photo = this.props.data.avatar_url;
+    }
+    let name;
+    if ('name' in this.props.data) {
+      name = this.props.data.name;
+    } else {
+      name = 'Anonymous';
+    }
+    return (<div className="nicety">
+      <Image responsive={true} src={photo} circle={true}/>
+      <h3>{name}</h3>
+      <textarea defaultValue={this.props.data.text} rows="6" readOnly="readOnly"/>
+    </div>);
   }
-}
-
-Nicety.propTypes = {
-  person: PropTypes.string.isRequired,
-  personThumbnail: PropTypes.string,
-  batchId: PropTypes.number,
-  text: PropTypes.string,
-  isAnonymous: PropTypes.bool.isRequired,
-}
+})
 
 export default Nicety;
