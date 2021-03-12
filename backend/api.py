@@ -188,8 +188,9 @@ def post_edited_niceties():
                 })
             else:
                 ret[n.target_id].append({
-                    'text': util.decode_str(n.text),
+                    'author_id': n.author_id,
                     'no_read': n.no_read,
+                    'text': util.decode_str(n.text),
                 })
         return jsonify([
             {
