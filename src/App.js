@@ -1,16 +1,16 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
-import { Button, Grid, Row, Col, Image, Nav, Navbar, NavDropdown, MenuItem, Checkbox, Modal } from 'react-bootstrap';
+import { Nav, Navbar, NavDropdown, MenuItem } from 'react-bootstrap';
 import React from 'react';
-
-import octotie from './octotie.png';
-import suittie from './suittie.png';
 import $ from 'jquery';
 
-var updated_niceties_spinlock = false;
-var updated_niceties = new Set();
-const components = { People, NicetyDisplay };
+import octotie from './octotie.png';
+
+import People from "./components/People";
+import NicetyDisplay from "./components/NicetyDisplay";
+import Admin from "./components/Admin";
+
 
 if (localStorage.getItem("saved") === null || localStorage.getItem("saved") === "undefined") {
     localStorage.setItem("saved", "true");

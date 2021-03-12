@@ -54,4 +54,4 @@ const Admin = React.createClass({
   }
 });
 
-export default AdminNicety;
+export default Admin;
