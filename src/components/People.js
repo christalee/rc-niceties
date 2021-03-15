@@ -6,12 +6,12 @@ import PeopleRow from './PeopleRow';
 import SaveButton from './SaveButton';
 
 
-let updated_niceties_spinlock = false;
+// let updated_niceties_spinlock = false;
 // let updated_niceties = new Set();
 
 const People = React.createClass({
   saveAllComments: function() {
-    updated_niceties_spinlock = true;
+    this.state.updated_niceties_spinlock = true;
     let data_to_save = [];
     const dateUpdated = new Date(Date.now());
     const dateUpdatedStr = dateUpdated.toUTCString();
@@ -45,7 +45,7 @@ const People = React.createClass({
         date_updated: dateUpdatedStr
       });
     });
-    updated_niceties_spinlock = false;
+    this.state.updated_niceties_spinlock = false;
     $.ajax({
       url: this.props.save_nicety_api,
       data: {
@@ -72,9 +72,9 @@ const People = React.createClass({
 
   getInitialState: function() {
     if (localStorage.getItem("saved") === "true") {
-      return {data: [], noSave: true, justSaved: false, updated_niceties: new Set()}
+      return {data: [], noSave: true, justSaved: false, updated_niceties: new Set(), updated_niceties_spinlock: false}
     } else if (localStorage.getItem("saved") === "false") {
-      return {data: [], noSave: false, justSaved: false, updated_niceties: new Set()}
+      return {data: [], noSave: false, justSaved: false, updated_niceties: new Set(), updated_niceties_spinlock: false}
     }
   },
 
@@ -129,7 +129,7 @@ const People = React.createClass({
     //     );
     // }.bind(this))
     staffRows = faculty.map(function(row) {
-      return (<PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>);
+      return (<PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties} spinlock={this.state.updated_niceties_spinlock}/>);
     }.bind(this))
 
     staffHeader = (<h3>Staff</h3>);
@@ -149,13 +149,13 @@ const People = React.createClass({
         <h3>Leaving Soon</h3>
         {
           leaving.map(function(row) {
-            return (<PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>);
+            return (<PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties} spinlock={this.state.updated_niceties_spinlock}/>);
           }.bind(this))
         }
         <hr/> {maybeHeader}
         {
           staying.map(function(row) {
-            return (<PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties}/>);
+            return (<PeopleRow fromMe={this.props.fromMe} data={row} saveReady={savePass} updated_niceties={this.state.updated_niceties} spinlock={this.state.updated_niceties_spinlock}/>);
           }.bind(this))
         }
         {maybeHR}

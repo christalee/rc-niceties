@@ -61,6 +61,7 @@ const Person = React.createClass({
     return {textValue: textValue, checkValue: checkValue, noReadValue: noReadValue}
   },
   updateSave: function() {
+    while (this.props.updated_niceties_spinlock) {}
     let addString;
     if (this.props.data.stints.length > 0) {
       // TODO addString is now an Array, change var name?

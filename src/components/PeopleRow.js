@@ -9,7 +9,7 @@ const PeopleRow = React.createClass({
       {
         this.props.data.map(function(result) {
           return (<Col lg="3" md="6" sm="6" xs="12">
-            <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} updated_niceties={this.props.updated_niceties}/>
+            <Person fromMe={this.props.fromMe} data={result} saveReady={this.props.saveReady} updated_niceties={this.props.updated_niceties} spinlock={this.props.spinlock}/>
           </Col>);
         }.bind(this))
       }
