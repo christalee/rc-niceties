@@ -47,12 +47,8 @@ def authorized():
         user = User(
             id=me['id'],
             name=util.name_from_rc_person(me),
-            avatar_url=me['image'],
-            is_faculty=me['is_faculty'])
+            avatar_url=me['image_path'])
         db.session.add(user)
-        db.session.commit()
-    elif user.faculty != me['is_faculty']:
-        user.faculty = me['is_faculty']
         db.session.commit()
     session['user_id'] = user.id
     return redirect(url_for('home'))

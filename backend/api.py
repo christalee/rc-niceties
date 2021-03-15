@@ -7,7 +7,7 @@ import backend.config as config
 import backend.util as util
 from backend import app, db, rc
 from backend.auth import current_user, needs_authorization
-from backend.models import Nicety, SiteConfiguration
+from backend.models import Nicety, SiteConfiguration, User
 from flask import abort, json, jsonify, redirect, request, url_for
 from flask.views import MethodView
 
@@ -91,6 +91,11 @@ def get_current_faculty():
                 info['is_faculty'] = True
                 faculty.append(info)
                 break
+        user = User.query.get(p['id'])
+        if user:
+            user.faculty = True
+            db.session.add(user)
+    db.session.commit()
 
     return faculty
 
