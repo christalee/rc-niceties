@@ -64,18 +64,11 @@ const Person = React.createClass({
     while (this.props.updated_niceties_spinlock) {}
     let addString;
     if (this.props.data.stints.length > 0) {
-      // TODO addString is now an Array, change var name?
-      addString = [
-        this.props.data.id,
-        this.props.data.stints[this.props.data.stints.length - 1].end_date
-      ];
+      addString = this.props.data.id + "," + this.props.data.stints[this.props.data.stints.length - 1].end_date;
     } else {
       // use today's date rather than a hardcoded string
       let d = new Date();
-      addString = [
-        this.props.data.id,
-        d.toISOString().slice(0, 10)
-      ];
+      addString = this.props.data.id + "," + d.toISOString().slice(0, 10);
     }
     if (!(addString in this.props.updated_niceties)) {
       console.log(addString);

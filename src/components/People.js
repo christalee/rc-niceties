@@ -5,7 +5,6 @@ import $ from 'jquery';
 import PeopleRow from './PeopleRow';
 import SaveButton from './SaveButton';
 
-
 // let updated_niceties_spinlock = false;
 // let updated_niceties = new Set();
 
@@ -16,8 +15,7 @@ const People = React.createClass({
     const dateUpdated = new Date(Date.now());
     const dateUpdatedStr = dateUpdated.toUTCString();
     this.state.updated_niceties.forEach(function(e) {
-      let user_id = String(e[0])
-      let end_date = e[1]
+      let [user_id, end_date] = e.split(",")
       let anonymous;
       if (localStorage.getItem("anonymous-" + user_id) === "undefined" || localStorage.getItem("anonymous-" + user_id) === null) {
         anonymous = "false";

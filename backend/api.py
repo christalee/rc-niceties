@@ -337,10 +337,11 @@ def display_people():
 def save_niceties():
     niceties_to_save = json.loads(request.form.get("niceties", "[]"))
     for n in niceties_to_save:
-        if n.get("end_date"):
-            end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
-        else:
+        if n.get("end_date") == "null":
             end_date = None
+        else:
+            end_date = datetime.strptime(n.get("end_date"), "%Y-%m-%d").date()
+
         nicety = (
             Nicety
             .query      # Query is always about getting Nicety objects from the database
