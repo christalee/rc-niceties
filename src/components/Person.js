@@ -4,7 +4,7 @@ import { Checkbox, Image } from 'react-bootstrap';
 const Person = React.createClass({
   getInitialState: function() {
     let textValue = '';
-    let checkValue = "false";
+    let anonValue = "false";
     let noReadValue = "false";
     let dataPerson;
     let foundPerson = false;
@@ -31,7 +31,7 @@ const Person = React.createClass({
         textValue = '';
       }
       localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
-      checkValue = dataPerson.anonymous.toString();
+      anonValue = dataPerson.anonymous.toString();
       localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
       noReadValue = dataPerson.no_read.toString();
       localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
@@ -43,7 +43,7 @@ const Person = React.createClass({
         textValue = '';
       }
       localStorage.setItem("anonymous-" + this.props.data.id, dataPerson.anonymous.toString());
-      checkValue = dataPerson.anonymous.toString();
+      anonValue = dataPerson.anonymous.toString();
       localStorage.setItem("no_read-" + this.props.data.id, dataPerson.no_read.toString());
       noReadValue = dataPerson.no_read.toString();
       localStorage.setItem("date_updated-" + this.props.data.id, dateUpdated.toString());
@@ -52,13 +52,13 @@ const Person = React.createClass({
         textValue = localStorage.getItem("nicety-" + this.props.data.id);
       }
       if (localStorage.getItem("anonymous-" + this.props.data.id) !== null) {
-        checkValue = localStorage.getItem("anonymous-" + this.props.data.id);
+        anonValue = localStorage.getItem("anonymous-" + this.props.data.id);
       }
       if (localStorage.getItem("no_read-" + this.props.data.id) !== null) {
         noReadValue = localStorage.getItem("no_read-" + this.props.data.id);
       }
     }
-    return {textValue: textValue, checkValue: checkValue, noReadValue: noReadValue}
+    return {textValue: textValue, anonValue: anonValue, noReadValue: noReadValue}
   },
   updateSave: function() {
     while (this.props.updated_niceties_spinlock) {}
@@ -83,7 +83,7 @@ const Person = React.createClass({
     this.updateSave();
   },
   anonymousChange: function(event) {
-    this.setState({checkValue: event.target.checked.toString()});
+    this.setState({anonValue: event.target.checked.toString()});
     localStorage.setItem("anonymous-" + this.props.data.id, event.target.checked.toString());
     this.updateSave();
   },
@@ -105,11 +105,11 @@ const Person = React.createClass({
 
   render: function() {
     let anonymousRender;
-    if (this.state.checkValue === "true") {
+    if (this.state.anonValue === "true") {
       anonymousRender = (<Checkbox
         checked="checked"
         onChange={this.anonymousChange}>Submit Anonymously</Checkbox>);
-    } else if (this.state.checkValue === "false") {
+    } else if (this.state.anonValue === "false") {
       anonymousRender = (<Checkbox
         onChange={this.anonymousChange}>Submit Anonymously</Checkbox>);
     }

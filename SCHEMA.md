@@ -53,7 +53,7 @@ fromMe: `PeopleRow.props.fromMe`
 
 data: `PeopleRow.props.data[0]`
 
-getInitialState: ``{'textValue', 'checkValue', 'noReadValue'}`
+getInitialState: ``{'textValue', 'anonValue', 'noReadValue'}`
 
 `updateSave`: populates `updated_niceties` (cf. `People.saveAllComments`)
 
