@@ -9,11 +9,11 @@ const AdminNicety = React.createClass({
         return {
             text: this.props.nicety.text,
             noSave: true,
-            reviewedValue: this.props.nicety.reviewed.toString()
+            reviewedValue: this.props.nicety.reviewed
         };
     },
     reviewedChange: function(event) {
-      this.setState({reviewedValue: event.target.checked.toString(), noSave: false});
+      this.setState({reviewedValue: event.target.checked, noSave: false});
     },
     saveNicety: function() {
         const data = {
@@ -43,11 +43,11 @@ const AdminNicety = React.createClass({
 
     render: function() {
       let reviewedRender;
-      if (this.state.reviewedValue === "true") {
+      if (this.state.reviewedValue === true) {
         reviewedRender = (<Checkbox
           checked="checked"
           onChange={this.reviewedChange}>Reviewed</Checkbox>);
-      } else if (this.state.reviewedValue === "false") {
+      } else if (this.state.reviewedValue === false) {
         reviewedRender = (<Checkbox
           onChange={this.reviewedChange}>Reviewed</Checkbox>);
       }
