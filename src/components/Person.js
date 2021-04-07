@@ -72,7 +72,6 @@ const Person = React.createClass({
       addString = this.props.data.id + "," + d.toISOString().slice(0, 10);
     }
     if (!(addString in this.props.updated_niceties)) {
-      console.log(addString);
       this.props.updated_niceties.add(addString);
     }
     store.set("saved", false);

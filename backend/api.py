@@ -215,7 +215,6 @@ def post_edited_niceties():
 @needs_authorization
 def get_niceties_to_edit():
     is_admin = util.admin_access(current_user())
-    print(request.form)
     nicety_text = util.encode_str(request.form.get("text"))
     nicety_author = json.loads(request.form.get("author_id"))
     nicety_target = json.loads(request.form.get("target_id"))
