@@ -11,6 +11,7 @@ import octotie from './octotie.png';
 import People from './components/People';
 import NicetyDisplay from './components/NicetyDisplay';
 import Admin from './components/Admin';
+import Settings from './components/Settings';
 
 
 if (store.get("saved") === null) {
@@ -114,6 +115,10 @@ const App = React.createClass({
             $('.dropdown-toggle').text('Admin');
             $('.dropdown-toggle').append('<span class="caret"></span>');
             return <Admin admin_edit_api={this.props.admin_edit_api}/>
+        case "settings":
+            $('.dropdown-toggle').text("Settings");
+            $('.dropdown-toggle').append('<span class="caret"></span>');
+            return <Settings />
         default:
         }
     },
@@ -137,6 +142,7 @@ const App = React.createClass({
                             <MenuItem eventKey="write-niceties" >Write Niceties</MenuItem>
                             <MenuItem eventKey="view-niceties" >Niceties About You</MenuItem>
                             {adminMenu}
+                            <MenuItem eventKey="settings">Settings</MenuItem>
                         </NavDropdown>
                     </Nav>
                 </Navbar>

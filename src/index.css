@@ -167,3 +167,17 @@ footer {
   text-align: center;
   font-size: 1em;
 }
+
+.settings {
+  width: 75%;
+  margin: 0 auto;
+}
+
+.fitwidth {
+  width: 1px;
+  white-space: nowrap;
+}
+
+td {
+  font-size: 20px;
+}
