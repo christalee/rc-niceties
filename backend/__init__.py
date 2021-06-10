@@ -2,6 +2,7 @@ import os
 from base64 import b64decode
 
 from flask import Flask
+from flask_migrate import Migrate
 from flask_oauthlib.client import OAuth
 from flask_sqlalchemy import SQLAlchemy
 
@@ -19,7 +20,8 @@ app.config.update(dict(
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     STATIC_BASE=os.path.realpath(os.path.abspath(os.path.join(app.root_path, '../build/'))),
     STATIC_FILE_ON_404='index.html',
-    DEV=os.environ['DEV']
+    DEV=os.environ['DEV'],
+    DEBUG_SHOW_ALL=os.environ.get('DEBUG_SHOW_ALL', False)
 ))
 app.static_folder = app.config.get('STATIC_BASE', './static/')
 
@@ -34,7 +36,9 @@ with app.app_context():
         consumer_key=os.environ['RC_OAUTH_ID'],  # Deliberately throw exception if not set
         consumer_secret=os.environ['RC_OAUTH_SECRET'],  # Deliberately throw exception it not set
         access_token_method='POST',
+
     )
+    migrate = Migrate(app, db)
 
 # Imports for URLs that should be available
 import backend.api  # noqa
@@ -45,3 +49,4 @@ import backend.static  # noqa
 #   app     The Flask() object
 #   db      The SQLAlchemy() object
 #   rc      The OAuth() object for the RC remote application
+#   migrate The DB migration object

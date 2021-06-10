@@ -8,13 +8,13 @@ import store from 'store2';
 
 import octotie from './octotie.png';
 
-import People from "./components/People";
-import NicetyDisplay from "./components/NicetyDisplay";
-import Admin from "./components/Admin";
+import People from './components/People';
+import NicetyDisplay from './components/NicetyDisplay';
+import Admin from './components/Admin';
 
 
-if (store.get("saved") === null || store.get("saved") === "undefined") {
-  store.set("saved", true);
+if (store.get("saved") === null) {
+    store.set("saved", true);
 }
 
 const App = React.createClass({
@@ -103,9 +103,6 @@ const App = React.createClass({
         case "write-niceties":
             $('.dropdown-toggle').text('Write Niceties');
             $('.dropdown-toggle').append('<span class="caret"></span>');
-            if ('status' in this.state.people) {
-                return <h1>Niceties are closed!</h1>
-            }
             return <People people={this.state.people}
                             fromMe={this.state.fromMe}
                             save_nicety_api={this.props.save_nicety_api} />
